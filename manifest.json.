@@ -1,0 +1,16 @@
+{
+  "name": "The Study Atelier — JEE × NID",
+  "short_name": "Study Atelier",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f5f5ef",
+  "theme_color": "#e9eee6",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
