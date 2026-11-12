@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#e9eee6"><meta name="description" content="A calm JEE and NID preparation tracker">
+<link rel="manifest" href="manifest.json"><link rel="icon" href="icon.svg" type="image/svg+xml">
+<title>The Study Atelier</title>
+<style>
+:root{--bg:#f5f5ef;--card:#fffefa;--ink:#26352d;--muted:#78847b;--sage:#dce7dc;--line:#e5e8df;--accent:#647d69}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px system-ui,-apple-system,sans-serif}
+header{padding:26px 20px 18px;max-width:900px;margin:auto}h1{font:500 28px Georgia,serif;margin:0 0 5px}.sub{color:var(--muted);font-size:13px}
+nav{display:flex;gap:8px;overflow:auto;padding:0 16px 12px;max-width:900px;margin:auto}
+nav button,.btn{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:22px;padding:9px 14px;white-space:nowrap}
+nav button.active,.btn.primary{background:var(--sage);border-color:var(--sage)}
+main{max-width:900px;margin:auto;padding:8px 16px 40px}.panel{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:17px;margin:0 0 14px}
+h2{font:500 20px Georgia,serif;margin:0 0 12px}.muted{color:var(--muted)}.row{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+input,textarea,select{font:inherit;border:1px solid var(--line);border-radius:10px;padding:10px;background:#fffefa;color:var(--ink);max-width:100%}
+input[type=checkbox]{accent-color:var(--accent);width:18px;height:18px}.task{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}.task:last-child{border:0}
+.stat{font:26px Georgia,serif}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:10px}
+textarea{width:100%;min-height:100px}.challenge{padding:12px;border-radius:12px;background:#f0f3ec;margin:8px 0}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:20px}
+</style>
+</head>
+<body>
+<header><h1>The Study Atelier</h1><div class="sub">JEE × NID · a little progress, every day</div></header>
+<nav id="tabs"></nav><main id="app"></main><footer>Your progress is saved in this browser on this device.</footer>
+<script>
+const pages=["Overview","Daily tasks","Timetable","NID studio","JEE practice","Backlogs","Art journal","Analytics"];
+let state=JSON.parse(localStorage.getItem("atelier")||"{}");
+state.tasks??=["Revise today's class notes","Solve 25 JEE questions","Review one backlog topic","30 minutes of NID sketching","Plan tomorrow"];state.backlogs??=[];state.notes??="";state.done??={};state.goal??="Build consistency";state.sessions??=0;
+const save=()=>localStorage.setItem("atelier",JSON.stringify(state));
+let page="Overview";
+const tabs=document.querySelector("#tabs"),app=document.querySelector("#app");
+function el(tag,attrs={},text=""){let x=document.createElement(tag);Object.entries(attrs).forEach(([k,v])=>x.setAttribute(k,v));if(text)x.textContent=text;return x}
+function panel(title){let p=el("section",{class:"panel"});p.append(el("h2",{},title));app.append(p);return p}
+function button(parent,label,fn){let b=el("button",{class:"btn"},label);b.onclick=fn;parent.append(b);return b}
+function render(){
+tabs.innerHTML="";pages.forEach(p=>{let b=el("button",{class:p===page?"active":""},p);b.onclick=()=>{page=p;render()};tabs.append(b)});app.innerHTML="";
+if(page==="Overview"){let p=panel("Welcome back");p.append(el("p",{class:"muted"},"Keep JEE as your anchor and make room for creative practice."));let g=el("div",{class:"grid"});[["Daily tasks",`${state.tasks.filter((t,i)=>state.done[i]).length}/${state.tasks.length}`],["Study sessions",state.sessions],["Backlogs",state.backlogs.length]].forEach(([a,b])=>{let c=el("div",{class:"panel"});c.append(el("div",{class:"stat"},b),el("div",{class:"muted"},a));g.append(c)});app.append(g);let q=panel("Today's intention");let inp=el("input",{value:state.goal,placeholder:"Your goal"});inp.style.width="100%";inp.onchange=()=>{state.goal=inp.value;save()};q.append(inp)}
+if(page==="Daily tasks"){let p=panel("Daily checklist");state.tasks.forEach((t,i)=>{let r=el("label",{class:"task"}),c=el("input",{type:"checkbox"});c.checked=!!state.done[i];c.onchange=()=>{state.done[i]=c.checked;save();render()};r.append(c,el("span",{},t));p.append(r)});let inp=el("input",{placeholder:"Add a task"});let add=button(p,"＋ Add task",()=>{if(inp.value.trim()){state.tasks.push(inp.value.trim());inp.value="";save();render()}});p.append(inp)}
+if(page==="Timetable"){let p=panel("A simple coaching-day rhythm");[["8:00–5:00","Coaching"],["5:00–6:00","Rest, snack and reset"],["6:00–7:30","JEE revision / practice"],["7:30–8:00","Break"],["8:00–8:30","NID drawing practice"],["8:30 onward","Dinner and lighter review"]].forEach(([a,b])=>{let r=el("div",{class:"task"});r.append(el("strong",{},a),el("span",{},b));p.append(r)})}
+if(page==="NID studio"){let p=panel("Drawing prompts");["Redesign a school water bottle for younger students","Draw a busy market using only 5 shapes","Create 3 icons for a study app","Design a chair for a tiny reading corner","Sketch the same object from 3 viewpoints","Make a poster about saving water","Invent packaging for a handmade gift"].forEach(t=>p.append(el("div",{class:"challenge"},t)))}
+if(page==="JEE practice"){let p=panel("Quick practice · Physics");p.append(el("p",{},"A body starts from rest and accelerates uniformly at 2 m/s² for 5 s. What is its final speed?"));["5 m/s","10 m/s","2.5 m/s","20 m/s"].forEach((v,i)=>button(p,v,()=>alert(i===1?"Correct! v = u + at = 0 + 2×5 = 10 m/s":"Try again: use v = u + at.")));p.append(el("p",{class:"muted"},"Keep a notebook for full solutions and doubts."))}
+if(page==="Backlogs"){let p=panel("Backlog tracker");state.backlogs.forEach((t,i)=>{let r=el("div",{class:"task"});r.append(el("span",{},t));button(r,"Remove",()=>{state.backlogs.splice(i,1);save();render()});p.append(r)});let inp=el("input",{placeholder:"Topic to revisit"});p.append(inp);button(p,"＋ Add backlog",()=>{if(inp.value.trim()){state.backlogs.push(inp.value.trim());save();render()}})}
+if(page==="Art journal"){let p=panel("Creative log");let ta=el("textarea",{placeholder:"What did you draw or notice today?"});ta.value=state.notes;ta.onchange=()=>{state.notes=ta.value;save()};p.append(ta);button(p,"Save entry",()=>{state.notes=ta.value;save();alert("Saved on this device.")})}
+if(page==="Analytics"){let p=panel("Your week at a glance");p.append(el("p",{},`Checklist items completed: ${Object.values(state.done).filter(Boolean).length}`),el("p",{},`Backlog topics: ${state.backlogs.length}`),el("p",{},`Study sessions logged: ${state.sessions}`));button(p,"＋ Log a study session",()=>{state.sessions++;save();render()})}
+}
+render();
+if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
+</script>
+</body></html>
